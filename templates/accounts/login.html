@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Sign in" %}{% endblock %}
+
+{% block body %}
+<div class="min-h-screen flex items-center justify-center px-4 py-12" style="background: var(--surface);">
+  <div class="w-full max-w-md rounded-2xl border shadow-card p-8" style="border-color: var(--border); background: var(--surface-2);">
+    <div class="flex items-center gap-3 mb-6">
+      <span class="inline-flex h-11 w-11 rounded-xl brand-bg shadow-card items-center justify-center text-white font-bold">M</span>
+      <div>
+        <p class="text-xs uppercase tracking-wide font-semibold" style="color: var(--muted);">Mobiuz MTMS</p>
+        <h1 class="text-xl font-bold">{% trans "Sign in" %}</h1>
+      </div>
+    </div>
+    <form method="post" action="" class="space-y-4">
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+        <div class="text-sm text-red-600">{{ form.non_field_errors }}</div>
+      {% endif %}
+      {% for field in form %}
+        <div>
+          <label class="block text-xs font-semibold mb-1" for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {% for e in field.errors %}<p class="text-xs text-red-600 mt-1">{{ e }}</p>{% endfor %}
+        </div>
+      {% endfor %}
+      <button type="submit" class="w-full rounded-full py-2.5 text-sm font-semibold text-white brand-bg shadow-card">
+        {% trans "Continue" %}
+      </button>
+    </form>
+    <p class="mt-6 text-center text-sm" style="color: var(--muted);">
+      {% trans "No account?" %}
+      <a href="{% url 'accounts:register' %}" class="font-semibold brand-text hover:underline">{% trans "Register" %}</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

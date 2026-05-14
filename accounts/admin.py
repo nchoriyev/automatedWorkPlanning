@@ -1,0 +1,92 @@
+from django import forms
+from django.contrib import admin
+from django.contrib.auth.forms import ReadOnlyPasswordHashField
+from django.utils.translation import gettext_lazy as _
+
+from .models import User
+
+
+class UserCreationForm(forms.ModelForm):
+    password1 = forms.CharField(label=_("Password"), widget=forms.PasswordInput)
+    password2 = forms.CharField(label=_("Confirm password"), widget=forms.PasswordInput)
+
+    class Meta:
+        model = User
+        fields = ("email", "full_name", "role", "department", "avatar")
+
+    def clean_password2(self):
+        p1 = self.cleaned_data.get("password1")
+        p2 = self.cleaned_data.get("password2")
+        if p1 and p2 and p1 != p2:
+            raise forms.ValidationError(_("Passwords do not match."))
+        return p2
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.set_password(self.cleaned_data["password1"])
+        if commit:
+            user.save()
+        return user
+
+
+class UserChangeForm(forms.ModelForm):
+    password = ReadOnlyPasswordHashField(
+        label=_("Password"),
+        help_text=_("Raw passwords are not stored. Use the password change flow."),
+    )
+
+    class Meta:
+        model = User
+        fields = (
+            "email",
+            "password",
+            "full_name",
+            "role",
+            "department",
+            "avatar",
+            "is_active",
+            "is_staff",
+            "is_superuser",
+            "groups",
+            "user_permissions",
+        )
+
+
+@admin.register(User)
+class UserAdmin(admin.ModelAdmin):
+    form = UserChangeForm
+    add_form = UserCreationForm
+    ordering = ("email",)
+    list_display = ("email", "full_name", "role", "department", "is_staff", "is_active")
+    list_filter = ("is_staff", "is_active", "department")
+    search_fields = ("email", "full_name", "role")
+    readonly_fields = ("date_joined", "last_login")
+
+    fieldsets = (
+        (None, {"fields": ("email", "password")}),
+        (_("Personal info"), {"fields": ("full_name", "role", "department", "avatar")}),
+        (_("Permissions"), {"fields": ("is_active", "is_staff", "is_superuser", "groups", "user_permissions")}),
+        (_("Dates"), {"fields": ("last_login", "date_joined")}),
+    )
+
+    add_fieldsets = (
+        (
+            None,
+            {
+                "classes": ("wide",),
+                "fields": ("email", "full_name", "password1", "password2", "is_staff", "is_superuser"),
+            },
+        ),
+    )
+
+    def get_form(self, request, obj=None, **kwargs):
+        defaults = {}
+        if obj is None:
+            defaults["form"] = self.add_form
+        defaults.update(kwargs)
+        return super().get_form(request, obj, **defaults)
+
+    def get_fieldsets(self, request, obj=None):
+        if not obj:
+            return self.add_fieldsets
+        return super().get_fieldsets(request, obj)

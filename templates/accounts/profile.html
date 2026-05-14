@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load i18n static %}
+
+{% block title %}{% trans "Profile" %}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto space-y-8">
+  <div class="flex flex-col sm:flex-row gap-6 items-start">
+    <div class="shrink-0">
+      {% if user.avatar %}
+        <img src="{{ user.avatar.url }}" alt="" class="h-28 w-28 rounded-2xl object-cover border shadow-card" style="border-color: var(--border);">
+      {% else %}
+        <img src="{% static 'img/default_avatar.svg' %}" alt="" class="h-28 w-28 rounded-2xl border shadow-card bg-slate-900" style="border-color: var(--border);">
+      {% endif %}
+    </div>
+    <div class="flex-1 space-y-2">
+      <h1 class="text-2xl font-bold">{{ user.full_name }}</h1>
+      <p class="text-sm" style="color: var(--muted);">{{ user.email }}</p>
+      {% if user.role %}
+        <p class="text-sm"><span class="font-semibold">{% trans "Position" %}:</span> {{ user.role }}</p>
+      {% endif %}
+      {% if user.department %}
+        <p class="text-sm"><span class="font-semibold">{% trans "Department" %}:</span> {{ user.department }}</p>
+      {% endif %}
+      {% if user.is_staff %}
+        <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold border"
+              style="border-color: var(--border); color: var(--muted);">{% trans "Staff" %}</span>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="rounded-2xl border shadow-card p-6" style="border-color: var(--border); background: var(--surface-2);">
+    <h2 class="text-lg font-bold mb-4">{% trans "Edit profile" %}</h2>
+    <form method="post" enctype="multipart/form-data" class="space-y-4">
+      {% csrf_token %}
+      {% for field in form %}
+        <div>
+          <label class="block text-xs font-semibold mb-1" for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {% for e in field.errors %}<p class="text-xs text-red-600 mt-1">{{ e }}</p>{% endfor %}
+        </div>
+      {% endfor %}
+      <button type="submit" class="rounded-full px-5 py-2 text-sm font-semibold text-white brand-bg shadow-card">
+        {% trans "Save changes" %}
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}

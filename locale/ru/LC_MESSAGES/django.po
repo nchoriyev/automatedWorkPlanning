@@ -1,0 +1,299 @@
+# Russian translations for MTMS (project domain).
+msgid ""
+msgstr ""
+"Project-Id-Version: MTMS\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-05-13 12:00+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: \n"
+"Language-Team: Russian\n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+
+msgid "Task Management"
+msgstr "Управление задачами"
+
+msgid "Kanban board"
+msgstr "Канбан-доска"
+
+msgid "Drag tasks between columns. Double-click a card to view details."
+msgstr "Перетаскивайте задачи между колонками. Двойной щелчок по карточке открывает детали."
+
+msgid "Add task"
+msgstr "Добавить задачу"
+
+msgid "Lang"
+msgstr "Язык"
+
+msgid "Language"
+msgstr "Язык"
+
+msgid "Theme"
+msgstr "Тема"
+
+msgid "Light"
+msgstr "Светлая"
+
+msgid "Dark"
+msgstr "Тёмная"
+
+msgid "Corporate"
+msgstr "Корпоративная"
+
+msgid "Sign in"
+msgstr "Вход"
+
+msgid "Sign out"
+msgstr "Выход"
+
+msgid "Register"
+msgstr "Регистрация"
+
+msgid "Profile"
+msgstr "Профиль"
+
+msgid "Admin Dashboard"
+msgstr "Админ-панель"
+
+msgid "Admin"
+msgstr "Админ"
+
+msgid "Planned"
+msgstr "Запланировано"
+
+msgid "In progress"
+msgstr "В работе"
+
+msgid "In review"
+msgstr "На проверке"
+
+msgid "Completed"
+msgstr "Завершено"
+
+msgid "Low"
+msgstr "Низкий"
+
+msgid "Medium"
+msgstr "Средний"
+
+msgid "High"
+msgstr "Высокий"
+
+msgid "Critical"
+msgstr "Критический"
+
+msgid "Board"
+msgstr "Доска"
+
+msgid "Unassigned"
+msgstr "Не назначено"
+
+msgid "Attachments"
+msgstr "Вложения"
+
+msgid "Open"
+msgstr "Открыть"
+
+msgid "Drop tasks here"
+msgstr "Перетащите задачи сюда"
+
+msgid "No active columns. Ask an administrator to enable board columns."
+msgstr "Нет активных колонок. Попросите администратора включить колонки."
+
+msgid "New task"
+msgstr "Новая задача"
+
+msgid "Fill in the details and attach media if needed."
+msgstr "Заполните поля и при необходимости прикрепите файлы."
+
+msgid "Cancel"
+msgstr "Отмена"
+
+msgid "Save task"
+msgstr "Сохранить задачу"
+
+msgid "Edit task"
+msgstr "Редактировать задачу"
+
+msgid "Task"
+msgstr "Задача"
+
+msgid "Read-only — you are not the creator, assignee, or staff."
+msgstr "Только просмотр — вы не автор, исполнитель или сотрудник."
+
+msgid "Title"
+msgstr "Заголовок"
+
+msgid "Description"
+msgstr "Описание"
+
+msgid "Priority"
+msgstr "Приоритет"
+
+msgid "Due date"
+msgstr "Срок"
+
+msgid "Assigned employee"
+msgstr "Исполнитель"
+
+msgid "Column"
+msgstr "Колонка"
+
+msgid "Close"
+msgstr "Закрыть"
+
+msgid "Update task"
+msgstr "Обновить задачу"
+
+msgid "Images or video files."
+msgstr "Изображения или видео."
+
+msgid "Continue"
+msgstr "Продолжить"
+
+msgid "No account?"
+msgstr "Нет аккаунта?"
+
+msgid "Already registered?"
+msgstr "Уже зарегистрированы?"
+
+msgid "Create account"
+msgstr "Создать аккаунт"
+
+msgid "Welcome to MTMS."
+msgstr "Добро пожаловать в MTMS."
+
+msgid "You are already signed in."
+msgstr "Вы уже вошли в систему."
+
+msgid "Profile updated."
+msgstr "Профиль обновлён."
+
+msgid "Position"
+msgstr "Должность"
+
+msgid "Department"
+msgstr "Отдел"
+
+msgid "Staff"
+msgstr "Персонал"
+
+msgid "Edit profile"
+msgstr "Редактировать профиль"
+
+msgid "Save changes"
+msgstr "Сохранить изменения"
+
+msgid "Email"
+msgstr "Email"
+
+msgid "Password"
+msgstr "Пароль"
+
+msgid "Confirm password"
+msgstr "Подтверждение пароля"
+
+msgid "Full name"
+msgstr "Полное имя"
+
+msgid "Admin dashboard"
+msgstr "Админ-панель"
+
+msgid "Overview of users, tasks, and board columns."
+msgstr "Сводка по пользователям, задачам и колонкам."
+
+msgid "Open Django admin"
+msgstr "Открыть Django admin"
+
+msgid "Users"
+msgstr "Пользователи"
+
+msgid "Tasks"
+msgstr "Задачи"
+
+msgid "Active columns"
+msgstr "Активные колонки"
+
+msgid "Tasks by priority"
+msgstr "Задачи по приоритету"
+
+msgid "No data yet."
+msgstr "Пока нет данных."
+
+msgid "Board columns"
+msgstr "Колонки доски"
+
+msgid "Toggle visibility with Django admin or edit ordering below."
+msgstr "Управляйте видимостью в Django admin или меняйте порядок ниже."
+
+msgid "Slug"
+msgstr "Slug"
+
+msgid "Name override"
+msgstr "Имя (переопределение)"
+
+msgid "Order"
+msgstr "Порядок"
+
+msgid "Visible"
+msgstr "Видима"
+
+msgid "Edit"
+msgstr "Изменить"
+
+msgid "No columns."
+msgstr "Нет колонок."
+
+msgid "Add column"
+msgstr "Добавить колонку"
+
+msgid "Save column"
+msgstr "Сохранить колонку"
+
+msgid "You do not have access to the admin dashboard."
+msgstr "У вас нет доступа к админ-панели."
+
+msgid "You do not have access to this action."
+msgstr "У вас нет доступа к этому действию."
+
+msgid "Column saved."
+msgstr "Колонка сохранена."
+
+msgid "Task created."
+msgstr "Задача создана."
+
+msgid "Task updated."
+msgstr "Задача обновлена."
+
+msgid "Please fix errors below."
+msgstr "Исправьте ошибки ниже."
+
+msgid "You cannot modify this task."
+msgstr "Вы не можете изменить эту задачу."
+
+msgid "Due dates"
+msgstr "Сроки"
+
+msgid "Numbers show how many tasks are due that day. Click a day to list them."
+msgstr "Цифра — сколько задач с этим сроком. Нажмите день, чтобы увидеть список."
+
+msgid "Prev"
+msgstr "Назад"
+
+msgid "Next"
+msgstr "Вперёд"
+
+msgid "Today"
+msgstr "Сегодня"
+
+msgid "Loading…"
+msgstr "Загрузка…"
+
+msgid "Could not load calendar."
+msgstr "Не удалось загрузить календарь."
+
+msgid "Could not load tasks for that day."
+msgstr "Не удалось загрузить задачи за этот день."

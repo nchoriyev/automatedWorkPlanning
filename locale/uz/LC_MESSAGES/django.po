@@ -1,0 +1,299 @@
+# Uzbek translations for MTMS (project domain).
+msgid ""
+msgstr ""
+"Project-Id-Version: MTMS\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-05-13 12:00+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: \n"
+"Language-Team: Uzbek\n"
+"Language: uz\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgid "Task Management"
+msgstr "Vazifalar boshqaruvi"
+
+msgid "Kanban board"
+msgstr "Kanban doskasi"
+
+msgid "Drag tasks between columns. Double-click a card to view details."
+msgstr "Vazifalarni ustunlar orasida sudrab o‘tkazing. Batafsil uchun kartochkani ikki marta bosing."
+
+msgid "Add task"
+msgstr "Vazifa qo‘shish"
+
+msgid "Lang"
+msgstr "Til"
+
+msgid "Language"
+msgstr "Til"
+
+msgid "Theme"
+msgstr "Mavzu"
+
+msgid "Light"
+msgstr "Yorug‘"
+
+msgid "Dark"
+msgstr "Qorong‘u"
+
+msgid "Corporate"
+msgstr "Korporativ"
+
+msgid "Sign in"
+msgstr "Kirish"
+
+msgid "Sign out"
+msgstr "Chiqish"
+
+msgid "Register"
+msgstr "Ro‘yxatdan o‘tish"
+
+msgid "Profile"
+msgstr "Profil"
+
+msgid "Admin Dashboard"
+msgstr "Admin panel"
+
+msgid "Admin"
+msgstr "Admin"
+
+msgid "Planned"
+msgstr "Rejada"
+
+msgid "In progress"
+msgstr "Jarayonda"
+
+msgid "In review"
+msgstr "Tekshiruvda"
+
+msgid "Completed"
+msgstr "Yakunlangan"
+
+msgid "Low"
+msgstr "Past"
+
+msgid "Medium"
+msgstr "O‘rta"
+
+msgid "High"
+msgstr "Yuqori"
+
+msgid "Critical"
+msgstr "Kritik"
+
+msgid "Board"
+msgstr "Doska"
+
+msgid "Unassigned"
+msgstr "Tayinlanmagan"
+
+msgid "Attachments"
+msgstr "Ilovalar"
+
+msgid "Open"
+msgstr "Ochish"
+
+msgid "Drop tasks here"
+msgstr "Vazifalarni bu yerga tashlang"
+
+msgid "No active columns. Ask an administrator to enable board columns."
+msgstr "Faol ustunlar yo‘q. Administratordan ustunlarni yoqishni so‘rang."
+
+msgid "New task"
+msgstr "Yangi vazifa"
+
+msgid "Fill in the details and attach media if needed."
+msgstr "Tafsilotlarni kiriting va kerak bo‘lsa media ilova qiling."
+
+msgid "Cancel"
+msgstr "Bekor qilish"
+
+msgid "Save task"
+msgstr "Vazifani saqlash"
+
+msgid "Edit task"
+msgstr "Vazifani tahrirlash"
+
+msgid "Task"
+msgstr "Vazifa"
+
+msgid "Read-only — you are not the creator, assignee, or staff."
+msgstr "Faqat ko‘rish — siz muallif, ijrochi yoki xodim emassiz."
+
+msgid "Title"
+msgstr "Sarlavha"
+
+msgid "Description"
+msgstr "Tavsif"
+
+msgid "Priority"
+msgstr "Muhimlik"
+
+msgid "Due date"
+msgstr "Muddat"
+
+msgid "Assigned employee"
+msgstr "Ijrochi"
+
+msgid "Column"
+msgstr "Ustun"
+
+msgid "Close"
+msgstr "Yopish"
+
+msgid "Update task"
+msgstr "Vazifani yangilash"
+
+msgid "Images or video files."
+msgstr "Rasm yoki video fayllar."
+
+msgid "Continue"
+msgstr "Davom etish"
+
+msgid "No account?"
+msgstr "Akkauntingiz yo‘qmi?"
+
+msgid "Already registered?"
+msgstr "Allaqachon ro‘yxatdan o‘tganmisiz?"
+
+msgid "Create account"
+msgstr "Akkaunt yaratish"
+
+msgid "Welcome to MTMS."
+msgstr "MTMS ga xush kelibsiz."
+
+msgid "You are already signed in."
+msgstr "Siz allaqachon tizimga kirgansiz."
+
+msgid "Profile updated."
+msgstr "Profil yangilandi."
+
+msgid "Position"
+msgstr "Lavozim"
+
+msgid "Department"
+msgstr "Bo‘lim"
+
+msgid "Staff"
+msgstr "Xodim"
+
+msgid "Edit profile"
+msgstr "Profilni tahrirlash"
+
+msgid "Save changes"
+msgstr "O‘zgarishlarni saqlash"
+
+msgid "Email"
+msgstr "Email"
+
+msgid "Password"
+msgstr "Parol"
+
+msgid "Confirm password"
+msgstr "Parolni tasdiqlash"
+
+msgid "Full name"
+msgstr "To‘liq ism"
+
+msgid "Admin dashboard"
+msgstr "Admin boshqaruvi"
+
+msgid "Overview of users, tasks, and board columns."
+msgstr "Foydalanuvchilar, vazifalar va Kanban ustunlari statistikasi."
+
+msgid "Open Django admin"
+msgstr "Django adminni ochish"
+
+msgid "Users"
+msgstr "Foydalanuvchilar"
+
+msgid "Tasks"
+msgstr "Vazifalar"
+
+msgid "Active columns"
+msgstr "Faol ustunlar"
+
+msgid "Tasks by priority"
+msgstr "Muhimlik bo‘yicha vazifalar"
+
+msgid "No data yet."
+msgstr "Hozircha ma’lumot yo‘q."
+
+msgid "Board columns"
+msgstr "Kanban ustunlari"
+
+msgid "Toggle visibility with Django admin or edit ordering below."
+msgstr "Ko‘rinishni Django admin orqali boshqaring yoki tartibni pastdan tahrirlang."
+
+msgid "Slug"
+msgstr "Slug"
+
+msgid "Name override"
+msgstr "Nom (qo‘lda)"
+
+msgid "Order"
+msgstr "Tartib"
+
+msgid "Visible"
+msgstr "Ko‘rinadi"
+
+msgid "Edit"
+msgstr "Tahrirlash"
+
+msgid "No columns."
+msgstr "Ustunlar yo‘q."
+
+msgid "Add column"
+msgstr "Ustun qo‘shish"
+
+msgid "Save column"
+msgstr "Ustunni saqlash"
+
+msgid "You do not have access to the admin dashboard."
+msgstr "Admin paneliga kirish huquqingiz yo‘q."
+
+msgid "You do not have access to this action."
+msgstr "Bu amalni bajarish huquqingiz yo‘q."
+
+msgid "Column saved."
+msgstr "Ustun saqlandi."
+
+msgid "Task created."
+msgstr "Vazifa yaratildi."
+
+msgid "Task updated."
+msgstr "Vazifa yangilandi."
+
+msgid "Please fix errors below."
+msgstr "Pastdagi xatolarni tuzating."
+
+msgid "You cannot modify this task."
+msgstr "Bu vazifani tahrirlay olmaysiz."
+
+msgid "Due dates"
+msgstr "Muddatlar"
+
+msgid "Numbers show how many tasks are due that day. Click a day to list them."
+msgstr "Raqam — shu kungi muddatli vazifalar soni. Kuni tanlasangiz ro‘yxat ochiladi."
+
+msgid "Prev"
+msgstr "Oldingi"
+
+msgid "Next"
+msgstr "Keyingi"
+
+msgid "Today"
+msgstr "Bugun"
+
+msgid "Loading…"
+msgstr "Yuklanmoqda…"
+
+msgid "Could not load calendar."
+msgstr "Kalendarni yuklab bo‘lmadi."
+
+msgid "Could not load tasks for that day."
+msgstr "Shu kun uchun vazifalarni yuklab bo‘lmadi."

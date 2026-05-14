@@ -1,0 +1,692 @@
+{% extends "base.html" %}
+{% load i18n static board_tags %}
+
+{% block title %}{% trans "Board" %}{% endblock %}
+
+{% block extra_head %}
+<style>
+  /* Kanban columns — slightly narrower */
+  #kanban-root {
+    gap: 1rem;
+    align-items: stretch;
+  }
+  @media (min-width: 1024px) {
+    #kanban-root { gap: 1.35rem; }
+  }
+
+  .column-sticker-emoji {
+    font-size: 1.35rem;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    filter: drop-shadow(0 2px 6px rgba(15, 23, 42, 0.12));
+  }
+
+  .cal-day {
+    min-height: 3rem;
+    border-radius: 0.85rem;
+    border: 1px solid var(--border);
+    background: color-mix(in srgb, var(--surface-2) 88%, var(--surface));
+    font-weight: 700;
+    font-size: 0.875rem;
+    position: relative;
+    transition: transform .12s ease, box-shadow .15s ease, border-color .15s ease;
+  }
+  .cal-day:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 22px rgba(15, 23, 42, 0.08);
+    border-color: color-mix(in srgb, var(--brand) 35%, var(--border));
+  }
+  .cal-day:disabled {
+    border-color: transparent;
+    background: transparent;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .cal-day--muted {
+    opacity: 0.45;
+  }
+  .cal-day--selected {
+    outline: 2px solid color-mix(in srgb, var(--brand) 55%, transparent);
+    outline-offset: 1px;
+  }
+  .cal-count-pill {
+    position: absolute;
+    bottom: 0.25rem;
+    right: 0.35rem;
+    font-size: 0.58rem;
+    font-weight: 800;
+    padding: 0.12rem 0.38rem;
+    border-radius: 9999px;
+    background: linear-gradient(135deg, var(--brand), var(--brand-600));
+    color: #fff;
+    line-height: 1;
+    min-width: 1.15rem;
+    text-align: center;
+  }
+
+  /* Priority: colored stripe + pill (“bayroqcha”) */
+  .task-card--pri-low { border-left: 4px solid #10b981 !important; }
+  .task-card--pri-medium { border-left: 4px solid #0ea5e9 !important; }
+  .task-card--pri-high { border-left: 4px solid #f59e0b !important; }
+  .task-card--pri-critical { border-left: 4px solid #dc2626 !important; }
+
+  .priority-flag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border-radius: 9999px;
+    padding: 0.28rem 0.55rem;
+    line-height: 1;
+    border: 1px solid transparent;
+    white-space: nowrap;
+  }
+  .priority-flag::before {
+    content: '';
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 9999px;
+    flex-shrink: 0;
+  }
+  .priority-flag--low {
+    background: rgba(16, 185, 129, 0.14);
+    color: #047857;
+    border-color: rgba(16, 185, 129, 0.35);
+  }
+  .priority-flag--low::before { background: #10b981; }
+  .priority-flag--medium {
+    background: rgba(14, 165, 233, 0.14);
+    color: #0369a1;
+    border-color: rgba(14, 165, 233, 0.35);
+  }
+  .priority-flag--medium::before { background: #0ea5e9; }
+  .priority-flag--high {
+    background: rgba(245, 158, 11, 0.18);
+    color: #b45309;
+    border-color: rgba(245, 158, 11, 0.45);
+  }
+  .priority-flag--high::before { background: #f59e0b; }
+  .priority-flag--critical {
+    background: rgba(220, 38, 38, 0.14);
+    color: #991b1b;
+    border-color: rgba(220, 38, 38, 0.4);
+  }
+  .priority-flag--critical::before { background: #dc2626; }
+
+  [data-theme="dark"] .priority-flag--low {
+    background: rgba(16, 185, 129, 0.14);
+    color: #a7f3d0;
+    border-color: rgba(16, 185, 129, 0.35);
+  }
+  [data-theme="dark"] .priority-flag--medium {
+    background: rgba(14, 165, 233, 0.14);
+    color: #bae6fd;
+    border-color: rgba(14, 165, 233, 0.35);
+  }
+  [data-theme="dark"] .priority-flag--high {
+    background: rgba(245, 158, 11, 0.16);
+    color: #fde68a;
+    border-color: rgba(245, 158, 11, 0.38);
+  }
+  [data-theme="dark"] .priority-flag--critical {
+    background: rgba(220, 38, 38, 0.18);
+    color: #fecaca;
+    border-color: rgba(248, 113, 113, 0.45);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div x-data="kanbanBoard()" x-init="init()" class="space-y-6">
+  <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
+    <div class="min-w-0">
+      <h1 class="text-2xl sm:text-3xl font-bold tracking-tight">{% trans "Kanban board" %}</h1>
+      <p class="mt-1 text-sm" style="color: var(--muted);">
+        {% trans "Drag tasks between columns. Double-click a card to view details." %}
+      </p>
+    </div>
+    <div class="flex flex-wrap items-center gap-2 justify-end shrink-0">
+      <button type="button"
+              @click="openCalendar()"
+              class="inline-flex items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold border transition hover:shadow-sm"
+              style="border-color: var(--border); background: var(--surface-2); color: var(--text);">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 brand-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="5" width="18" height="16" rx="2"/>
+          <path d="M16 3v4M8 3v4M3 11h18"/>
+        </svg>
+        {% trans "Due dates" %}
+      </button>
+      <button type="button"
+              @click="openCreate()"
+              class="inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white shadow-card brand-bg hover:opacity-95 transition">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+        {% trans "Add task" %}
+      </button>
+    </div>
+  </div>
+
+  <div id="kanban-root" class="flex overflow-x-auto pb-6 pt-1 snap-x snap-mandatory">
+    {% for bundle in board_columns %}
+      {% with column=bundle.column tasks=bundle.tasks %}
+      <section class="snap-start shrink-0 w-[min(88vw,320px)] sm:w-[340px] lg:w-[360px] rounded-2xl border shadow-card flex flex-col min-h-[560px] h-[calc(100vh-10.25rem)]"
+               style="border-color: var(--border); background: var(--surface-2);">
+        <header class="px-5 py-4 border-b flex items-center justify-between gap-3 shrink-0"
+                style="border-color: var(--border);">
+          <div class="flex gap-3 items-start min-w-0 flex-1">
+            <div class="flex items-center justify-center w-9 h-9 rounded-xl border shrink-0"
+                 style="border-color: var(--border); background: color-mix(in srgb, var(--surface) 70%, transparent);">
+              {% column_sticker column %}
+            </div>
+            <div class="min-w-0 flex-1">
+              <p class="text-xs uppercase tracking-[0.12em] font-extrabold brand-text leading-snug truncate">
+                {% column_title column %}
+              </p>
+              <p class="text-[11px] mt-1 truncate font-medium" style="color: var(--muted);">{{ column.slug }}</p>
+            </div>
+          </div>
+          <span class="text-xs font-extrabold px-3 py-1.5 rounded-full border tabular-nums"
+                style="border-color: var(--border); color: var(--muted); background: color-mix(in srgb, var(--surface) 55%, transparent);">
+            {{ tasks|length }}
+          </span>
+        </header>
+
+        <div class="task-list flex-1 min-h-0 overflow-y-auto px-4 py-4 space-y-3 scroll-smooth"
+             data-column-id="{{ column.id }}">
+          {% for task in tasks %}
+            {% task_payload task as payload %}
+            <article class="task-card task-card--pri-{{ task.priority }} rounded-xl border px-4 py-3.5 cursor-grab active:cursor-grabbing hover:shadow-lg transition shadow-sm group relative"
+                     style="border-color: var(--border); background: color-mix(in srgb, var(--surface-2) 92%, var(--surface));"
+                     data-task-id="{{ task.id }}"
+                     data-column-id="{{ column.id }}"
+                     data-task="{{ payload }}"
+                     @dblclick.prevent="openInspector(JSON.parse($event.currentTarget.dataset.task))">
+              <div class="flex items-start justify-between gap-2">
+                <h3 class="text-[15px] font-semibold leading-snug line-clamp-2">{{ task.title }}</h3>
+                <span class="shrink-0 priority-flag priority-flag--{{ task.priority }}">
+                  {{ task.get_priority_display }}
+                </span>
+              </div>
+              {% if task.description %}
+                <p class="mt-2.5 text-[13px] leading-relaxed line-clamp-4" style="color: var(--muted);">{{ task.description }}</p>
+              {% endif %}
+              <div class="mt-3.5 flex items-center justify-between gap-2 text-[12px]" style="color: var(--muted);">
+                <div class="flex items-center gap-2 min-w-0">
+                  {% if task.assigned_to %}
+                    <span class="truncate">→ {{ task.assigned_to.full_name }}</span>
+                  {% else %}
+                    <span class="italic">{% trans "Unassigned" %}</span>
+                  {% endif %}
+                </div>
+                {% if task.due_date %}
+                  <span class="shrink-0 font-medium">{{ task.due_date|date:"SHORT_DATE_FORMAT" }}</span>
+                {% endif %}
+              </div>
+              <div class="mt-3 flex items-center justify-between text-[12px]" style="color: var(--muted);">
+                <span>{% trans "Attachments" %}: {{ task.attachments.count }}</span>
+                <button type="button"
+                        class="text-xs font-semibold brand-text opacity-0 group-hover:opacity-100 transition"
+                        @click.stop="openInspector(JSON.parse($event.currentTarget.closest('.task-card').dataset.task))">
+                  {% trans "Open" %}
+                </button>
+              </div>
+            </article>
+          {% empty %}
+            <div class="empty-hint text-sm text-center py-14 rounded-xl border border-dashed pointer-events-none select-none"
+                 style="border-color: var(--border); color: var(--muted);">
+              {% trans "Drop tasks here" %}
+            </div>
+          {% endfor %}
+        </div>
+      </section>
+      {% endwith %}
+    {% empty %}
+      <p class="text-sm" style="color: var(--muted);">
+        {% trans "No active columns. Ask an administrator to enable board columns." %}
+      </p>
+    {% endfor %}
+  </div>
+
+  {# Create modal #}
+  <div x-show="createOpen" x-transition.opacity.duration.200ms
+       x-cloak
+       class="fixed inset-0 z-50 flex items-center justify-center p-4"
+       style="display:none;">
+    <div class="absolute inset-0 bg-slate-900/55 backdrop-blur-sm" @click="createOpen=false"></div>
+    <div class="relative w-full max-w-lg rounded-2xl border shadow-2xl p-6 max-h-[90vh] overflow-y-auto"
+         style="border-color: var(--border); background: var(--surface-2);" @click.stop>
+      <div class="flex items-start justify-between gap-3 mb-4">
+        <div>
+          <h2 class="text-lg font-bold">{% trans "New task" %}</h2>
+          <p class="text-xs mt-1" style="color: var(--muted);">{% trans "Fill in the details and attach media if needed." %}</p>
+        </div>
+        <button type="button" class="rounded-full p-2 hover:bg-black/5 dark:hover:bg-white/10" @click="createOpen=false" aria-label="{% trans 'Close' %}">✕</button>
+      </div>
+      <form id="create-task-form" method="post" action="{% url 'tasks:task_create' %}" enctype="multipart/form-data" class="space-y-3">
+        {% csrf_token %}
+        {% if task_form.non_field_errors %}
+          <div class="text-sm text-red-600">{{ task_form.non_field_errors }}</div>
+        {% endif %}
+        {% for field in task_form %}
+          <div>
+            <label class="block text-xs font-semibold mb-1" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.help_text %}<p class="text-[11px] mt-1" style="color: var(--muted);">{{ field.help_text }}</p>{% endif %}
+            {% for e in field.errors %}<p class="text-xs text-red-600 mt-1">{{ e }}</p>{% endfor %}
+          </div>
+        {% endfor %}
+        <div>
+          <label class="block text-xs font-semibold mb-1">{% trans "Attachments" %}</label>
+          <input class="mtms-input-file" type="file" name="{{ task_form.prefix }}-attachments" multiple>
+          <p class="text-[11px] mt-1" style="color: var(--muted);">{% trans "Images or video files." %}</p>
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" class="mtms-input px-4 py-2 text-sm font-semibold" @click="createOpen=false">{% trans "Cancel" %}</button>
+          <button type="submit" class="rounded-full px-5 py-2 text-sm font-semibold text-white brand-bg shadow-card">
+            {% trans "Save task" %}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  {# Inspect / edit modal #}
+  <div x-show="inspectOpen" x-transition.opacity.duration.200ms
+       x-cloak
+       class="fixed inset-0 z-50 flex items-center justify-center p-4"
+       style="display:none;">
+    <div class="absolute inset-0 bg-slate-900/55 backdrop-blur-sm" @click="inspectOpen=false"></div>
+    <div class="relative w-full max-w-lg rounded-2xl border shadow-2xl p-6 max-h-[90vh] overflow-y-auto"
+         style="border-color: var(--border); background: var(--surface-2);" @click.stop>
+      <div class="flex items-start justify-between gap-3 mb-4">
+        <div>
+          <h2 class="text-lg font-bold" x-text="active.can_edit ? '{% trans "Edit task" %}' : '{% trans "Task" %}'"></h2>
+          <p class="text-xs mt-1" x-show="!active.can_edit" style="color: var(--muted);">
+            {% trans "Read-only — you are not the creator, assignee, or staff." %}
+          </p>
+        </div>
+        <button type="button" class="rounded-full p-2 hover:bg-black/5 dark:hover:bg-white/10" @click="inspectOpen=false">✕</button>
+      </div>
+
+      <div x-show="active.can_edit" class="space-y-3" style="display:none;">
+        <form method="post" :action="updateUrl(active.id)" enctype="multipart/form-data" @submit.prevent="submitUpdate($event)">
+          {% csrf_token %}
+          <div>
+            <label class="block text-xs font-semibold mb-1">{% trans "Title" %}</label>
+            <input class="mtms-input" name="title" type="text" x-model="active.title" required>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1">{% trans "Description" %}</label>
+            <textarea class="mtms-input" name="description" rows="4" x-model="active.description"></textarea>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold mb-1">{% trans "Priority" %}</label>
+              <select class="mtms-input" name="priority" x-model="active.priority">
+                {% for val,label in priority_choices %}
+                  <option value="{{ val }}">{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold mb-1">{% trans "Due date" %}</label>
+              <input class="mtms-input" type="date" name="due_date" x-model="active.due_date">
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1">{% trans "Assigned employee" %}</label>
+            <select class="mtms-input" name="assigned_to" x-model="active.assigned_to">
+              <option value="">— {% trans "Unassigned" %} —</option>
+              {% for u in assignees %}
+                <option value="{{ u.id }}">{{ u.full_name }} ({{ u.email }})</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1">{% trans "Column" %}</label>
+            <select class="mtms-input" name="column" x-model="active.column">
+              {% for c in columns %}
+                <option value="{{ c.id }}">{% column_title c %} ({{ c.slug }})</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold mb-1">{% trans "Attachments" %}</label>
+            <input class="mtms-input-file" type="file" name="attachments" multiple>
+          </div>
+          <div class="flex justify-end gap-2 pt-2">
+            <button type="button" class="mtms-input px-4 py-2 text-sm font-semibold" @click="inspectOpen=false">{% trans "Close" %}</button>
+            <button type="submit" class="rounded-full px-5 py-2 text-sm font-semibold text-white brand-bg shadow-card">
+              {% trans "Update task" %}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div x-show="!active.can_edit" class="space-y-3 text-sm" style="display:none;">
+        <div>
+          <p class="text-xs font-semibold mb-1" style="color: var(--muted);">{% trans "Title" %}</p>
+          <p class="font-semibold" x-text="active.title"></p>
+        </div>
+        <div>
+          <p class="text-xs font-semibold mb-1" style="color: var(--muted);">{% trans "Description" %}</p>
+          <p class="whitespace-pre-wrap" style="color: var(--muted);" x-text="active.description || '—'"></p>
+        </div>
+        <div class="flex justify-end pt-2">
+          <button type="button" class="mtms-input px-4 py-2 text-sm font-semibold" @click="inspectOpen=false">{% trans "Close" %}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {# Due dates calendar #}
+  <div x-show="calendarOpen" x-transition.opacity.duration.200ms
+       x-cloak
+       class="fixed inset-0 z-[60] flex items-center justify-center p-4"
+       style="display:none;">
+    <div class="absolute inset-0 bg-slate-900/55 backdrop-blur-sm" @click="calendarOpen=false"></div>
+    <div class="relative w-full max-w-lg rounded-2xl border shadow-2xl p-6 max-h-[92vh] overflow-y-auto"
+         style="border-color: var(--border); background: var(--surface-2);" @click.stop>
+      <div class="flex items-start justify-between gap-3 mb-3">
+        <div class="min-w-0">
+          <h2 class="text-lg font-bold">{% trans "Due dates" %}</h2>
+          <p class="text-xs mt-1" style="color: var(--muted);">
+            {% trans "Numbers show how many tasks are due that day. Click a day to list them." %}
+          </p>
+        </div>
+        <button type="button" class="rounded-full p-2 hover:bg-black/5 dark:hover:bg-white/10" @click="calendarOpen=false" aria-label="{% trans 'Close' %}">✕</button>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2 mb-4">
+        <button type="button" class="nav-action text-sm py-2" @click="prevMonth()">‹ {% trans "Prev" %}</button>
+        <button type="button" class="nav-action text-sm py-2 flex-1 min-w-[10rem] justify-center font-bold" x-text="monthTitle()"></button>
+        <button type="button" class="nav-action text-sm py-2" @click="nextMonth()">{% trans "Next" %} ›</button>
+        <button type="button"
+                class="nav-action text-xs py-2 font-semibold brand-text border-dashed"
+                style="border-style: dashed;"
+                @click="jumpToday()">
+          {% trans "Today" %}
+        </button>
+      </div>
+
+      <p class="text-xs mb-2 font-semibold text-red-600" x-show="calError" x-text="calError"></p>
+      <p class="text-xs mb-3 font-semibold" style="color: var(--muted);" x-show="calLoading">{% trans "Loading…" %}</p>
+
+      <div class="grid grid-cols-7 gap-1 mb-2 text-center text-[11px] font-extrabold uppercase tracking-wide" style="color: var(--muted);">
+        <template x-for="(wd, i) in weekdayLabels()" :key="i">
+          <div class="py-1" x-text="wd"></div>
+        </template>
+      </div>
+
+      <div class="grid grid-cols-7 gap-1">
+        <template x-for="(cell, idx) in buildCalCells()" :key="idx">
+          <button type="button"
+                  class="cal-day"
+                  :disabled="cell.blank"
+                  :class="cell.blank ? '' : (isDaySelected(cell.day) ? 'cal-day--selected' : (cell.count ? '' : 'cal-day--muted'))"
+                  @click="pickDay(cell.day)">
+            <span x-show="!cell.blank" x-text="cell.day"></span>
+            <span class="cal-count-pill" x-show="!cell.blank && cell.count" x-text="cell.count"></span>
+          </button>
+        </template>
+      </div>
+
+      <div class="mt-5 border-t pt-4 space-y-2" style="border-color: var(--border);" x-show="calSelected">
+        <p class="text-xs font-extrabold uppercase tracking-wide" style="color: var(--muted);" x-text="calSelected"></p>
+        <template x-for="t in calDayTasks" :key="t.id">
+          <div class="rounded-xl border px-3 py-2 flex flex-col gap-1" style="border-color: var(--border); background: color-mix(in srgb, var(--surface) 55%, transparent);">
+            <span class="text-sm font-semibold leading-snug" x-text="t.title"></span>
+            <span class="text-[11px] font-bold uppercase tracking-wide w-fit px-2 py-0.5 rounded-full border"
+                  style="border-color: var(--border); color: var(--muted);"
+                  x-text="t['column__slug']"></span>
+          </div>
+        </template>
+        <p class="text-xs italic" style="color: var(--muted);" x-show="calSelected && !calLoading && calDayTasks.length === 0">
+          {% trans "No tasks on this day." %}
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  [x-cloak] { display: none !important; }
+</style>
+
+<script>
+  window.MTMS_URLS = {
+    move: "{% url 'tasks:task_move' %}",
+    updateTmpl: "{% url 'tasks:task_update' pk=2147483647 %}".replace('2147483647', '__PK__'),
+    calendarMonth: "{% url 'tasks:calendar_month' %}",
+    calendarDay: "{% url 'tasks:calendar_day' %}"
+  };
+
+  function kanbanBoard() {
+    return {
+      createOpen: false,
+      inspectOpen: false,
+      calendarOpen: false,
+      calYear: new Date().getFullYear(),
+      calMonth: new Date().getMonth() + 1,
+      calCounts: {},
+      calDaysInMonth: 31,
+      calFirstWd: 0,
+      calLoading: false,
+      calSelected: null,
+      calDayTasks: [],
+      calError: '',
+      active: {
+        id: null,
+        title: '',
+        description: '',
+        priority: 'medium',
+        due_date: '',
+        assigned_to: '',
+        column: null,
+        can_edit: false
+      },
+      openCreate() {
+        this.createOpen = true;
+      },
+      openCalendar() {
+        const t = new Date();
+        this.calYear = t.getFullYear();
+        this.calMonth = t.getMonth() + 1;
+        this.calSelected = null;
+        this.calDayTasks = [];
+        this.calError = '';
+        this.calendarOpen = true;
+        this.refreshCalendar();
+      },
+      openInspector(task) {
+        this.active = {
+          id: task.id,
+          title: task.title,
+          description: task.description,
+          priority: task.priority,
+          due_date: task.due_date || '',
+          assigned_to: task.assigned_to ? String(task.assigned_to) : '',
+          column: String(task.column),
+          can_edit: !!task.can_edit
+        };
+        this.inspectOpen = true;
+      },
+      updateUrl(pk) {
+        return window.MTMS_URLS.updateTmpl.replace('__PK__', String(pk));
+      },
+      async submitUpdate(ev) {
+        const form = ev.target;
+        const fd = new FormData(form);
+        const res = await fetch(form.action, {
+          method: 'POST',
+          headers: {'X-CSRFToken': mtmsGetCookie('csrftoken')},
+          body: fd,
+          credentials: 'same-origin'
+        });
+        if (res.ok || res.redirected) window.location.reload();
+      },
+      weekdayLabels() {
+        const lang = document.documentElement.lang || 'uz';
+        const fmt = new Intl.DateTimeFormat(lang, { weekday: 'short' });
+        const labels = [];
+        for (let dow = 0; dow < 7; dow++) {
+          const dt = new Date(Date.UTC(2024, 0, 1 + dow));
+          labels.push(fmt.format(dt));
+        }
+        return labels;
+      },
+      monthTitle() {
+        const lang = document.documentElement.lang || 'uz';
+        const d = new Date(this.calYear, this.calMonth - 1, 1);
+        return new Intl.DateTimeFormat(lang, { month: 'long', year: 'numeric' }).format(d);
+      },
+      isoForDay(day) {
+        return `${this.calYear}-${String(this.calMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      },
+      isDaySelected(day) {
+        if (!day) return false;
+        return this.calSelected === this.isoForDay(day);
+      },
+      buildCalCells() {
+        const cells = [];
+        const fw = Number.isFinite(this.calFirstWd) ? this.calFirstWd : 0;
+        const dim = Number.isFinite(this.calDaysInMonth) ? this.calDaysInMonth : 0;
+        for (let i = 0; i < fw; i++) {
+          cells.push({ blank: true });
+        }
+        for (let d = 1; d <= dim; d++) {
+          const c = parseInt((this.calCounts && this.calCounts[String(d)]) || 0, 10);
+          cells.push({ blank: false, day: d, count: c });
+        }
+        while (cells.length % 7 !== 0) {
+          cells.push({ blank: true });
+        }
+        return cells;
+      },
+      prevMonth() {
+        if (this.calMonth === 1) {
+          this.calMonth = 12;
+          this.calYear -= 1;
+        } else {
+          this.calMonth -= 1;
+        }
+        this.calSelected = null;
+        this.calDayTasks = [];
+        this.refreshCalendar();
+      },
+      nextMonth() {
+        if (this.calMonth === 12) {
+          this.calMonth = 1;
+          this.calYear += 1;
+        } else {
+          this.calMonth += 1;
+        }
+        this.calSelected = null;
+        this.calDayTasks = [];
+        this.refreshCalendar();
+      },
+      async refreshCalendar() {
+        this.calLoading = true;
+        this.calError = '';
+        try {
+          const url = new URL(window.MTMS_URLS.calendarMonth, window.location.origin);
+          url.searchParams.set('year', String(this.calYear));
+          url.searchParams.set('month', String(this.calMonth));
+          const res = await fetch(url.toString(), { credentials: 'same-origin' });
+          if (!res.ok) throw new Error('month');
+          const data = await res.json();
+          this.calCounts = data.counts || {};
+          this.calDaysInMonth = data.days_in_month;
+          this.calFirstWd = data.first_weekday_mon0;
+        } catch (e) {
+          this.calError = "{% trans 'Could not load calendar.' %}";
+        } finally {
+          this.calLoading = false;
+        }
+      },
+      async pickDay(day) {
+        if (!day) return;
+        this.calError = '';
+        const iso = this.isoForDay(day);
+        this.calSelected = iso;
+        try {
+          const url = new URL(window.MTMS_URLS.calendarDay, window.location.origin);
+          url.searchParams.set('date', iso);
+          const res = await fetch(url.toString(), { credentials: 'same-origin' });
+          if (!res.ok) throw new Error('day');
+          const data = await res.json();
+          this.calDayTasks = data.tasks || [];
+        } catch (e) {
+          this.calDayTasks = [];
+          this.calError = "{% trans 'Could not load tasks for that day.' %}";
+        }
+      },
+      async jumpToday() {
+        const t = new Date();
+        this.calYear = t.getFullYear();
+        this.calMonth = t.getMonth() + 1;
+        await this.refreshCalendar();
+        await this.pickDay(t.getDate());
+      },
+      initSortable() {
+        const root = document.getElementById('kanban-root');
+        if (!root || typeof Sortable === 'undefined') return;
+        root.querySelectorAll('.task-list').forEach(function (el) {
+          new Sortable(el, {
+            group: 'kanban',
+            animation: 220,
+            easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
+            ghostClass: 'sortable-ghost',
+            chosenClass: 'sortable-chosen',
+            dragClass: 'sortable-drag',
+            draggable: '.task-card',
+            onEnd: async function (evt) {
+              const columnId = parseInt(evt.to.dataset.columnId, 10);
+              const orderedIds = Array.from(evt.to.querySelectorAll('.task-card')).map(function (n) {
+                return parseInt(n.dataset.taskId, 10);
+              });
+              const taskId = parseInt(evt.item.dataset.taskId, 10);
+              const payload = JSON.stringify({task_id: taskId, column_id: columnId, ordered_ids: orderedIds});
+              const res = await fetch(window.MTMS_URLS.move, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'X-CSRFToken': mtmsGetCookie('csrftoken')
+                },
+                body: payload,
+                credentials: 'same-origin'
+              });
+              if (!res.ok) window.location.reload();
+            }
+          });
+        });
+      },
+      initCreateSubmit() {
+        const form = document.getElementById('create-task-form');
+        if (!form) return;
+        form.addEventListener('submit', async function (e) {
+          e.preventDefault();
+          const fd = new FormData(form);
+          const res = await fetch(form.action, {
+            method: 'POST',
+            headers: {'X-CSRFToken': mtmsGetCookie('csrftoken')},
+            body: fd,
+            credentials: 'same-origin'
+          });
+          if (res.ok || res.redirected) window.location.reload();
+        });
+      },
+      init() {
+        this.initSortable();
+        this.initCreateSubmit();
+      }
+    };
+  }
+</script>
+{% endblock %}
