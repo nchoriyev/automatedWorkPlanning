@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
 
-from .models import BoardColumn, Task, TaskAttachment
+from .models import BoardColumn, BoardSettings, Task, TaskAttachment, TaskHistory
 
 
 class TaskAttachmentInline(admin.TabularInline):
@@ -17,9 +17,38 @@ class BoardColumnAdmin(admin.ModelAdmin):
     ordering = ("order",)
 
 
+@admin.register(BoardSettings)
+class BoardSettingsAdmin(admin.ModelAdmin):
+    list_display = ("id", "completed_column", "completed_retention_hours")
+
+    def has_add_permission(self, request):
+        return not BoardSettings.objects.exists()
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(TaskHistory)
+class TaskHistoryAdmin(admin.ModelAdmin):
+    list_display = ("title", "user", "priority", "column_slug", "completed_at")
+    list_filter = ("column_slug",)
+    search_fields = ("title", "description", "creator_display", "assignee_display")
+    readonly_fields = ("created_at",)
+    ordering = ("-completed_at",)
+
+
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
-    list_display = ("title", "column", "priority", "creator", "assigned_to", "due_date", "created_at")
+    list_display = (
+        "title",
+        "column",
+        "priority",
+        "creator",
+        "assigned_to",
+        "due_date",
+        "entered_completed_at",
+        "created_at",
+    )
     list_filter = ("column", "priority", "created_at")
     search_fields = ("title", "description")
     autocomplete_fields = ("creator", "assigned_to", "column")

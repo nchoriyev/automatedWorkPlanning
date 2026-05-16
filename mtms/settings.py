@@ -23,6 +23,17 @@ ALLOWED_HOSTS = env.list(
     default=["localhost", "127.0.0.1"],
 )
 
+# HTTPS orqali kirganda POST (login, formlar) uchun majburiy.
+CSRF_TRUSTED_ORIGINS = env.list(
+    "DJANGO_CSRF_TRUSTED_ORIGINS",
+    default=[],
+)
+
+# Nginx TLS terminatsiyasi orqasida ishlayotganda yoqing: DJANGO_BEHIND_PROXY=true
+if env.bool("DJANGO_BEHIND_PROXY", default=False):
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    USE_X_FORWARDED_HOST = True
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -135,6 +146,13 @@ else:
 
 FILE_UPLOAD_MAX_MEMORY_SIZE = 52428800  # 50 MB — video-friendly
 DATA_UPLOAD_MAX_MEMORY_SIZE = FILE_UPLOAD_MAX_MEMORY_SIZE
+
+if not DEBUG:
+    # HTTPS yoqilgach .env da DJANGO_SECURE_COOKIES=true qiling.
+    if env.bool("DJANGO_SECURE_COOKIES", default=False):
+        SESSION_COOKIE_SECURE = True
+        CSRF_COOKIE_SECURE = True
+    SECURE_SSL_REDIRECT = env.bool("DJANGO_SECURE_SSL_REDIRECT", default=False)
 
 #
 # django-storages (S3-compatible): set USE_S3=true and AWS_* / bucket env vars.

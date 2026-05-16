@@ -297,3 +297,126 @@ msgstr "Не удалось загрузить календарь."
 
 msgid "Could not load tasks for that day."
 msgstr "Не удалось загрузить задачи за этот день."
+
+msgid "Username"
+msgstr "Имя пользователя"
+
+msgid "username"
+msgstr "имя пользователя"
+
+msgid "Required to sign in. Letters, digits and @/./+/-/_ only."
+msgstr "Обязательно для входа. Допустимы буквы, цифры и символы @/./+/-/_"
+
+msgid "The username must be set"
+msgstr "Необходимо указать имя пользователя."
+
+msgid "email address"
+msgstr "адрес электронной почты"
+
+msgid "Specialist"
+msgstr "Специалист"
+
+msgid "Senior specialist"
+msgstr "Старший специалист"
+
+msgid "Leading specialist"
+msgstr "Ведущий специалист"
+
+msgid "Expert"
+msgstr "Эксперт"
+
+msgid "Group lead"
+msgstr "Руководитель группы"
+
+msgid "Position / role"
+msgstr "Должность / роль"
+
+msgid "position / role"
+msgstr "должность / роль"
+
+msgid "Please enter a correct full name and password."
+msgstr "Введите верное полное имя и пароль."
+
+msgid "An account with this full name already exists."
+msgstr "Учётная запись с таким полным именем уже существует."
+
+msgid "Phone number"
+msgstr "Номер телефона"
+
+msgid "Back to board"
+msgstr "Назад к доске"
+
+msgid "Creator"
+msgstr "Автор"
+
+msgid "Created"
+msgstr "Создано"
+
+msgid "Updated"
+msgstr "Обновлено"
+
+msgid "Task deleted."
+msgstr "Задача удалена."
+
+msgid "Delete task"
+msgstr "Удалить задачу"
+
+msgid "This cannot be undone."
+msgstr "Это действие нельзя отменить."
+
+msgid "Delete permanently"
+msgstr "Удалить навсегда"
+
+msgid "Delete this task permanently?"
+msgstr "Удалить эту задачу навсегда?"
+
+msgid "No attachments."
+msgstr "Нет вложений."
+
+msgid "Stable key for translations (e.g. planned, in_progress). Left blank to derive from name."
+msgstr "Стабильный ключ для переводов (например planned, in_progress). Если оставить пустым — будет сгенерирован из названия."
+
+msgid "Filter by user"
+msgstr "Фильтр по пользователю"
+
+msgid "Everyone"
+msgstr "Все"
+
+msgid "History entries"
+msgstr "Записей в истории"
+
+msgid "Board cleanup & history"
+msgstr "Очистка доски и история"
+
+msgid "Choose which column counts as \"completed\" and how many hours tasks stay there before removal from the Kanban (records remain in Task history)."
+msgstr "Выберите колонку «выполнено» и через сколько часов задачи удаляются с канбана (записи остаются в истории задач)."
+
+msgid "Save board settings"
+msgstr "Сохранить настройки доски"
+
+msgid "Board settings saved."
+msgstr "Настройки доски сохранены."
+
+msgid "Attachment removed."
+msgstr "Вложение удалено."
+
+msgid "Remove"
+msgstr "Удалить"
+
+msgid "Add files"
+msgstr "Добавить файлы"
+
+msgid "Tap or drop files here — images or video."
+msgstr "Нажмите или перетащите файлы сюда — изображения или видео."
+
+msgid "Task history"
+msgstr "История задач"
+
+msgid "Tasks that reached the completed column (kept after board cleanup)."
+msgstr "Задачи, попавшие в колонку выполнения (сохраняются после очистки доски)."
+
+msgid "Completed at"
+msgstr "Завершено"
+
+msgid "No completed tasks in history yet."
+msgstr "В истории пока нет завершённых задач."

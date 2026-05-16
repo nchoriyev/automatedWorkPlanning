@@ -18,7 +18,7 @@
     </a>
   </div>
 
-  <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+  <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
     <div class="rounded-2xl border p-5 shadow-card" style="border-color: var(--border); background: var(--surface-2);">
       <p class="text-xs font-semibold uppercase tracking-wide" style="color: var(--muted);">{% trans "Users" %}</p>
       <p class="mt-2 text-3xl font-bold">{{ stats.users }}</p>
@@ -34,6 +34,114 @@
     <div class="rounded-2xl border p-5 shadow-card" style="border-color: var(--border); background: var(--surface-2);">
       <p class="text-xs font-semibold uppercase tracking-wide" style="color: var(--muted);">{% trans "Active columns" %}</p>
       <p class="mt-2 text-3xl font-bold">{{ stats.active_columns }}</p>
+    </div>
+    <div class="rounded-2xl border p-5 shadow-card sm:col-span-2 lg:col-span-1" style="border-color: var(--border); background: var(--surface-2);">
+      <p class="text-xs font-semibold uppercase tracking-wide" style="color: var(--muted);">{% trans "History entries" %}</p>
+      <p class="mt-2 text-3xl font-bold">{{ stats.history_entries }}</p>
+    </div>
+  </section>
+
+  <section class="rounded-2xl border shadow-card overflow-hidden" style="border-color: var(--border); background: var(--surface-2);">
+    <header class="px-6 py-4 border-b flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"
+            style="border-color: var(--border);">
+      <div>
+        <h2 class="text-lg font-bold">{% trans "Completion statistics" %}</h2>
+        <p class="text-xs mt-1" style="color: var(--muted);">
+          {% trans "Tasks marked completed in the selected month (from history). Bars show unique completions per day." %}
+        </p>
+      </div>
+      <div class="flex flex-wrap items-center gap-2">
+        <a href="{{ stats_prev_month_url }}"
+           class="inline-flex rounded-full px-3 py-2 text-xs font-bold border transition hover:shadow-sm"
+           style="border-color: var(--border); background: var(--surface);">‹ {% trans "Prev month" %}</a>
+        <span class="inline-flex rounded-full px-4 py-2 text-sm font-extrabold border min-w-[10rem] justify-center"
+              style="border-color: var(--border); background: var(--surface);">
+          {{ period_day_one|date:"F Y" }}
+        </span>
+        <a href="{{ stats_next_month_url }}"
+           class="inline-flex rounded-full px-3 py-2 text-xs font-bold border transition hover:shadow-sm"
+           style="border-color: var(--border); background: var(--surface);">{% trans "Next month" %} ›</a>
+      </div>
+    </header>
+
+    <div class="px-6 py-6 grid grid-cols-1 xl:grid-cols-3 gap-8">
+      <div class="xl:col-span-1 rounded-2xl border p-5 shadow-sm flex flex-col justify-center gap-2"
+           style="border-color: var(--border); background: color-mix(in srgb, var(--surface) 88%, var(--surface-2));">
+        <p class="text-xs font-bold uppercase tracking-wide" style="color: var(--muted);">{% trans "Tasks completed" %}</p>
+        <p class="text-4xl font-black tracking-tight">{{ tasks_completed_month }}</p>
+        <p class="text-[11px] leading-snug" style="color: var(--muted);">
+          {% trans "Counted by unique task title + completion time in history (duplicate rows for creator and assignee are merged)." %}
+        </p>
+      </div>
+      <div class="xl:col-span-2 rounded-2xl border p-4 shadow-sm h-64 sm:h-72" style="border-color: var(--border);">
+        <canvas id="admin-completion-chart" aria-label="{% trans 'Completions per day' %}"></canvas>
+      </div>
+    </div>
+
+    <div class="px-6 pb-6">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
+        <h3 class="text-base font-bold">{% trans "Most active users" %}</h3>
+        <div class="flex flex-wrap gap-x-3 gap-y-1 text-xs font-semibold items-center">
+          <span style="color: var(--muted);">{% trans "Sort" %}:</span>
+          <a href="{{ sort_count_desc_url }}" class="hover:underline {% if sort_workers == 'count' and worker_order == 'desc' %}brand-text{% endif %}">{% trans "Completions ↓" %}</a>
+          <a href="{{ sort_count_asc_url }}" class="hover:underline {% if sort_workers == 'count' and worker_order == 'asc' %}brand-text{% endif %}">{% trans "Completions ↑" %}</a>
+          <span class="opacity-40">·</span>
+          <a href="{{ sort_name_asc_url }}" class="hover:underline {% if sort_workers == 'name' and worker_order == 'asc' %}brand-text{% endif %}">{% trans "Name A→Z" %}</a>
+          <a href="{{ sort_name_desc_url }}" class="hover:underline {% if sort_workers == 'name' and worker_order == 'desc' %}brand-text{% endif %}">{% trans "Name Z→A" %}</a>
+        </div>
+      </div>
+      <p class="text-[11px] mb-3" style="color: var(--muted);">
+        {% trans "Score = history entries when a task enters the completed column (creator and assignee each get one)." %}
+      </p>
+      <div class="overflow-x-auto rounded-xl border" style="border-color: var(--border);">
+        <table class="min-w-full text-sm">
+          <thead>
+            <tr class="text-left border-b" style="border-color: var(--border); background: color-mix(in srgb, var(--surface) 75%, transparent);">
+              <th class="py-3 px-4 font-bold">{% trans "User" %}</th>
+              <th class="py-3 px-4 font-bold text-right">{% trans "Entries" %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for w in top_workers %}
+              <tr class="border-b" style="border-color: var(--border);">
+                <td class="py-3 px-4 font-medium">{{ w.full_name|default:w.username }}</td>
+                <td class="py-3 px-4 text-right tabular-nums font-bold">{{ w.completed_entries }}</td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="2" class="py-8 px-4 text-center" style="color: var(--muted);">
+                  {% trans "No completion activity in this month." %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="rounded-2xl border shadow-card overflow-hidden" style="border-color: var(--border); background: var(--surface-2);">
+    <header class="px-6 py-4 border-b" style="border-color: var(--border);">
+      <h2 class="text-lg font-bold">{% trans "Board cleanup & history" %}</h2>
+      <p class="text-xs mt-1" style="color: var(--muted);">
+        {% trans "Choose which column counts as \"completed\" and how many hours tasks stay there before removal from the Kanban (records remain in Task history)." %}
+      </p>
+    </header>
+    <div class="px-6 py-6 max-w-xl">
+      <form method="post" action="{% url 'tasks:admin_dashboard' %}" class="space-y-4">
+        {% csrf_token %}
+        {% for field in board_settings_form %}
+          <div>
+            <label class="block text-xs font-semibold mb-1" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.help_text %}<p class="text-[11px] mt-1" style="color: var(--muted);">{{ field.help_text }}</p>{% endif %}
+            {% for e in field.errors %}<p class="text-xs text-red-600 mt-1">{{ e }}</p>{% endfor %}
+          </div>
+        {% endfor %}
+        <button type="submit" class="rounded-full px-5 py-2 text-sm font-semibold text-white brand-bg shadow-card">
+          {% trans "Save board settings" %}
+        </button>
+      </form>
     </div>
   </section>
 
@@ -117,4 +225,69 @@
     </div>
   </section>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+(function () {
+  function cssColorToRgba(color, alpha) {
+    var el = document.createElement('span');
+    el.style.position = 'absolute';
+    el.style.left = '-9999px';
+    el.style.color = color;
+    document.body.appendChild(el);
+    var rgb = window.getComputedStyle(el).color;
+    el.remove();
+    var m = rgb.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+    if (!m) return 'rgba(244,81,30,' + alpha + ')';
+    return 'rgba(' + m[1] + ',' + m[2] + ',' + m[3] + ',' + alpha + ')';
+  }
+
+  var canvas = document.getElementById('admin-completion-chart');
+  if (!canvas || typeof Chart === 'undefined') return;
+  var labels = {{ chart_labels_json|safe }};
+  var values = {{ chart_values_json|safe }};
+  var rootStyle = getComputedStyle(document.documentElement);
+  var brand = (rootStyle.getPropertyValue('--brand') || '#f4511e').trim();
+  var muted = (rootStyle.getPropertyValue('--muted') || '#64748b').trim();
+  var border = (rootStyle.getPropertyValue('--border') || '#e2e8f0').trim();
+  var text = (rootStyle.getPropertyValue('--text') || '#0f172a').trim();
+  var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  var chartBg = cssColorToRgba(brand, dark ? 0.42 : 0.58);
+
+  new Chart(canvas.getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: "{{ _('Completions per day')|escapejs }}",
+        data: values,
+        borderRadius: 8,
+        backgroundColor: chartBg,
+        borderColor: cssColorToRgba(brand, dark ? 0.95 : 0.9),
+        borderWidth: 1,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { color: text } }
+      },
+      scales: {
+        x: {
+          ticks: { color: muted, maxRotation: 0 },
+          grid: { color: border }
+        },
+        y: {
+          beginAtZero: true,
+          ticks: { color: muted, precision: 0 },
+          grid: { color: border }
+        }
+      }
+    }
+  });
+})();
+</script>
 {% endblock %}

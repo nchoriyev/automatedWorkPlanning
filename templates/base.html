@@ -258,6 +258,9 @@
                 Django {% trans "Admin" %}
               </a>
             {% endif %}
+            <a href="{% url 'tasks:task_history' %}" class="nav-action inline-flex items-center gap-2">
+              {% trans "Task history" %}
+            </a>
             <a href="{% url 'accounts:profile' %}" class="nav-action inline-flex items-center gap-2">
               {% trans "Profile" %}
             </a>

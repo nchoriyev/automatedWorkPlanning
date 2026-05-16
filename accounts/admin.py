@@ -12,7 +12,7 @@ class UserCreationForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ("email", "full_name", "role", "department", "avatar")
+        fields = ("username", "phone", "full_name", "role", "avatar")
 
     def clean_password2(self):
         p1 = self.cleaned_data.get("password1")
@@ -38,11 +38,11 @@ class UserChangeForm(forms.ModelForm):
     class Meta:
         model = User
         fields = (
-            "email",
+            "username",
+            "phone",
             "password",
             "full_name",
             "role",
-            "department",
             "avatar",
             "is_active",
             "is_staff",
@@ -56,25 +56,39 @@ class UserChangeForm(forms.ModelForm):
 class UserAdmin(admin.ModelAdmin):
     form = UserChangeForm
     add_form = UserCreationForm
-    ordering = ("email",)
-    list_display = ("email", "full_name", "role", "department", "is_staff", "is_active")
-    list_filter = ("is_staff", "is_active", "department")
-    search_fields = ("email", "full_name", "role")
+    ordering = ("username",)
+    list_display = ("username", "phone", "full_name", "role_display", "is_staff", "is_active")
+    list_filter = ("is_staff", "is_active", "role")
+    search_fields = ("username", "phone", "full_name")
     readonly_fields = ("date_joined", "last_login")
 
     fieldsets = (
-        (None, {"fields": ("email", "password")}),
-        (_("Personal info"), {"fields": ("full_name", "role", "department", "avatar")}),
+        (None, {"fields": ("username", "password")}),
+        (_("Contact"), {"fields": ("phone",)}),
+        (_("Personal info"), {"fields": ("full_name", "role", "avatar")}),
         (_("Permissions"), {"fields": ("is_active", "is_staff", "is_superuser", "groups", "user_permissions")}),
         (_("Dates"), {"fields": ("last_login", "date_joined")}),
     )
+
+    @admin.display(description=_("Position / role"))
+    def role_display(self, obj):
+        return obj.get_role_display()
 
     add_fieldsets = (
         (
             None,
             {
                 "classes": ("wide",),
-                "fields": ("email", "full_name", "password1", "password2", "is_staff", "is_superuser"),
+                "fields": (
+                    "username",
+                    "full_name",
+                    "role",
+                    "phone",
+                    "password1",
+                    "password2",
+                    "is_staff",
+                    "is_superuser",
+                ),
             },
         ),
     )

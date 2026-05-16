@@ -297,3 +297,126 @@ msgstr "Kalendarni yuklab bo‘lmadi."
 
 msgid "Could not load tasks for that day."
 msgstr "Shu kun uchun vazifalarni yuklab bo‘lmadi."
+
+msgid "Username"
+msgstr "Foydalanuvchi nomi"
+
+msgid "username"
+msgstr "foydalanuvchi nomi"
+
+msgid "Required to sign in. Letters, digits and @/./+/-/_ only."
+msgstr "Kirish uchun majburiy. Harflar, raqamlar va @/./+/-/_ belgilari."
+
+msgid "The username must be set"
+msgstr "Foydalanuvchi nomi ko‘rsatilishi shart."
+
+msgid "email address"
+msgstr "elektron pochta"
+
+msgid "Specialist"
+msgstr "Mutaxassis"
+
+msgid "Senior specialist"
+msgstr "Katta mutaxassis"
+
+msgid "Leading specialist"
+msgstr "Yetakchi mutaxassis"
+
+msgid "Expert"
+msgstr "Ekspert"
+
+msgid "Group lead"
+msgstr "Guruh boshlig‘i"
+
+msgid "Position / role"
+msgstr "Lavozim / rol"
+
+msgid "position / role"
+msgstr "lavozim / rol"
+
+msgid "Please enter a correct full name and password."
+msgstr "To‘liq ism va parolni to‘g‘ri kiriting."
+
+msgid "An account with this full name already exists."
+msgstr "Bu to‘liq ismdagi akkaunt allaqachon mavjud."
+
+msgid "Phone number"
+msgstr "Telefon raqami"
+
+msgid "Back to board"
+msgstr "Doskaga qaytish"
+
+msgid "Creator"
+msgstr "Muallif"
+
+msgid "Created"
+msgstr "Yaratilgan"
+
+msgid "Updated"
+msgstr "Yangilangan"
+
+msgid "Task deleted."
+msgstr "Vazifa o‘chirildi."
+
+msgid "Delete task"
+msgstr "Vazifani o‘chirish"
+
+msgid "This cannot be undone."
+msgstr "Buni qaytarib bo‘lmaydi."
+
+msgid "Delete permanently"
+msgstr "Butunlay o‘chirish"
+
+msgid "Delete this task permanently?"
+msgstr "Bu vazifani butunlay o‘chirishni tasdiqlaysizmi?"
+
+msgid "No attachments."
+msgstr "Ilovalar yo‘q."
+
+msgid "Stable key for translations (e.g. planned, in_progress). Left blank to derive from name."
+msgstr "Tarjima uchun barqaror kalit (masalan planned, in_progress). Bo‘sh qoldirsangiz nomdan avtomatik yaratiladi."
+
+msgid "Filter by user"
+msgstr "Foydalanuvchi bo‘yicha filtr"
+
+msgid "Everyone"
+msgstr "Hamma"
+
+msgid "History entries"
+msgstr "Tarix yozuvlari"
+
+msgid "Board cleanup & history"
+msgstr "Doskani tozalash va tarix"
+
+msgid "Choose which column counts as \"completed\" and how many hours tasks stay there before removal from the Kanban (records remain in Task history)."
+msgstr "Qaysi ustun «bajarildi» hisoblansin va Kanbandan necha soatdan keyin vazifalar o‘chirilishini tanlang (tarixda yozuvlar qoladi)."
+
+msgid "Save board settings"
+msgstr "Doska sozlamalarini saqlash"
+
+msgid "Board settings saved."
+msgstr "Doska sozlamalari saqlandi."
+
+msgid "Attachment removed."
+msgstr "Ilova olib tashlandi."
+
+msgid "Remove"
+msgstr "Olib tashlash"
+
+msgid "Add files"
+msgstr "Fayl qo‘shish"
+
+msgid "Tap or drop files here — images or video."
+msgstr "Bu yerga bosing yoki fayllarni torting — rasm yoki video."
+
+msgid "Task history"
+msgstr "Vazifalar tarixi"
+
+msgid "Tasks that reached the completed column (kept after board cleanup)."
+msgstr "«Bajarildi» ustuniga tushgan vazifalar (doskadan tozalangandan keyin saqlanadi)."
+
+msgid "Completed at"
+msgstr "Bajarilgan vaqt"
+
+msgid "No completed tasks in history yet."
+msgstr "Tarixda hali bajarilgan vazifalar yo‘q."

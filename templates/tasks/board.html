@@ -138,6 +138,86 @@
     color: #fecaca;
     border-color: rgba(248, 113, 113, 0.45);
   }
+
+  .task-card-title {
+    font-size: 1.0625rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.35;
+    color: var(--text);
+  }
+  .task-card-desc {
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.55;
+    color: color-mix(in srgb, var(--text) 74%, var(--muted));
+  }
+  .task-card-meta {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    color: var(--muted);
+  }
+
+  /* Create / edit task modals */
+  .mtms-modal-stack { display: flex; flex-direction: column; gap: 1rem; }
+  .mtms-modal-fieldgroup {
+    border-radius: 1rem;
+    border: 1px solid var(--border);
+    padding: 0.85rem 1rem;
+    background: color-mix(in srgb, var(--surface-2) 93%, var(--surface));
+    box-shadow: 0 1px 0 rgba(15, 23, 42, 0.04);
+  }
+  .mtms-modal-fieldgroup label.block {
+    font-size: 0.65rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-weight: 800;
+    color: var(--muted);
+    margin-bottom: 0.35rem;
+  }
+  #create-task-form .mtms-file-drop,
+  #inspect-edit-form .mtms-file-drop {
+    position: relative;
+    border: 2px dashed color-mix(in srgb, var(--brand) 42%, var(--border));
+    border-radius: 1rem;
+    padding: 1rem 1rem;
+    background: color-mix(in srgb, var(--surface-2) 88%, var(--surface));
+    transition: border-color .15s ease, box-shadow .15s ease;
+    min-height: 5.25rem;
+  }
+  #create-task-form .mtms-file-drop:focus-within,
+  #inspect-edit-form .mtms-file-drop:focus-within {
+    border-color: var(--brand);
+    box-shadow: 0 0 0 3px var(--accent-ring, rgba(244, 81, 30, 0.35));
+  }
+  #create-task-form .mtms-file-drop input[type=file],
+  #inspect-edit-form .mtms-file-drop input[type=file] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+  }
+  #create-task-form .mtms-file-drop-label,
+  #inspect-edit-form .mtms-file-drop-label {
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    align-items: center;
+    text-align: center;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+  #create-task-form .mtms-file-drop-hint,
+  #inspect-edit-form .mtms-file-drop-hint {
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--muted);
+  }
 </style>
 {% endblock %}
 
@@ -169,6 +249,17 @@
         </svg>
         {% trans "Add task" %}
       </button>
+      {% if user.is_staff or user.is_superuser %}
+      <form method="get" action="{% url 'tasks:board' %}" class="flex flex-wrap items-center gap-2">
+        <label class="text-[11px] font-bold uppercase tracking-wide whitespace-nowrap" style="color: var(--muted);">{% trans "Filter by user" %}</label>
+        <select name="board_user" class="mtms-input text-sm py-2 min-w-[10rem] max-w-[14rem]" onchange="this.form.submit()">
+          <option value="">{% trans "Everyone" %}</option>
+          {% for u in board_filter_users %}
+            <option value="{{ u.pk }}" {% if board_filter_user_id == u.pk %}selected{% endif %}>{{ u.full_name }}</option>
+          {% endfor %}
+        </select>
+      </form>
+      {% endif %}
     </div>
   </div>
 
@@ -208,15 +299,15 @@
                      data-task="{{ payload }}"
                      @dblclick.prevent="openInspector(JSON.parse($event.currentTarget.dataset.task))">
               <div class="flex items-start justify-between gap-2">
-                <h3 class="text-[15px] font-semibold leading-snug line-clamp-2">{{ task.title }}</h3>
+                <h3 class="task-card-title line-clamp-2">{{ task.title }}</h3>
                 <span class="shrink-0 priority-flag priority-flag--{{ task.priority }}">
                   {{ task.get_priority_display }}
                 </span>
               </div>
               {% if task.description %}
-                <p class="mt-2.5 text-[13px] leading-relaxed line-clamp-4" style="color: var(--muted);">{{ task.description }}</p>
+                <p class="task-card-desc mt-2.5 line-clamp-4">{{ task.description }}</p>
               {% endif %}
-              <div class="mt-3.5 flex items-center justify-between gap-2 text-[12px]" style="color: var(--muted);">
+              <div class="task-card-meta mt-3.5 flex items-center justify-between gap-2">
                 <div class="flex items-center gap-2 min-w-0">
                   {% if task.assigned_to %}
                     <span class="truncate">→ {{ task.assigned_to.full_name }}</span>
@@ -228,13 +319,13 @@
                   <span class="shrink-0 font-medium">{{ task.due_date|date:"SHORT_DATE_FORMAT" }}</span>
                 {% endif %}
               </div>
-              <div class="mt-3 flex items-center justify-between text-[12px]" style="color: var(--muted);">
+              <div class="task-card-meta mt-3 flex items-center justify-between">
                 <span>{% trans "Attachments" %}: {{ task.attachments.count }}</span>
-                <button type="button"
-                        class="text-xs font-semibold brand-text opacity-0 group-hover:opacity-100 transition"
-                        @click.stop="openInspector(JSON.parse($event.currentTarget.closest('.task-card').dataset.task))">
-                  {% trans "Open" %}
-                </button>
+                <a href="{% url 'tasks:task_detail' pk=task.pk %}"
+                   class="text-xs font-semibold brand-text opacity-0 group-hover:opacity-100 transition"
+                   @click.stop>
+                  {% trans "Details" %}
+                </a>
               </div>
             </article>
           {% empty %}
@@ -259,7 +350,7 @@
        class="fixed inset-0 z-50 flex items-center justify-center p-4"
        style="display:none;">
     <div class="absolute inset-0 bg-slate-900/55 backdrop-blur-sm" @click="createOpen=false"></div>
-    <div class="relative w-full max-w-lg rounded-2xl border shadow-2xl p-6 max-h-[90vh] overflow-y-auto"
+    <div class="relative w-full max-w-xl rounded-2xl border shadow-2xl p-6 max-h-[90vh] overflow-y-auto"
          style="border-color: var(--border); background: var(--surface-2);" @click.stop>
       <div class="flex items-start justify-between gap-3 mb-4">
         <div>
@@ -268,23 +359,31 @@
         </div>
         <button type="button" class="rounded-full p-2 hover:bg-black/5 dark:hover:bg-white/10" @click="createOpen=false" aria-label="{% trans 'Close' %}">✕</button>
       </div>
-      <form id="create-task-form" method="post" action="{% url 'tasks:task_create' %}" enctype="multipart/form-data" class="space-y-3">
+      <form id="create-task-form" method="post" action="{% url 'tasks:task_create' %}" enctype="multipart/form-data" class="mtms-modal-stack">
         {% csrf_token %}
+        {% if board_filter_user_id %}
+        <input type="hidden" name="board_user" value="{{ board_filter_user_id }}">
+        {% endif %}
         {% if task_form.non_field_errors %}
           <div class="text-sm text-red-600">{{ task_form.non_field_errors }}</div>
         {% endif %}
         {% for field in task_form %}
-          <div>
+          <div class="mtms-modal-fieldgroup">
             <label class="block text-xs font-semibold mb-1" for="{{ field.id_for_label }}">{{ field.label }}</label>
             {{ field }}
             {% if field.help_text %}<p class="text-[11px] mt-1" style="color: var(--muted);">{{ field.help_text }}</p>{% endif %}
             {% for e in field.errors %}<p class="text-xs text-red-600 mt-1">{{ e }}</p>{% endfor %}
           </div>
         {% endfor %}
-        <div>
+        <div class="mtms-modal-fieldgroup">
           <label class="block text-xs font-semibold mb-1">{% trans "Attachments" %}</label>
-          <input class="mtms-input-file" type="file" name="{{ task_form.prefix }}-attachments" multiple>
-          <p class="text-[11px] mt-1" style="color: var(--muted);">{% trans "Images or video files." %}</p>
+          <div class="mtms-file-drop mt-2">
+            <label class="mtms-file-drop-label">
+              <span>{% trans "Drop files or browse" %}</span>
+              <span class="mtms-file-drop-hint">{% trans "Images or video — multiple files allowed." %}</span>
+            </label>
+            <input type="file" name="{{ task_form.prefix }}-attachments" multiple accept="image/*,video/*">
+          </div>
         </div>
         <div class="flex justify-end gap-2 pt-2">
           <button type="button" class="mtms-input px-4 py-2 text-sm font-semibold" @click="createOpen=false">{% trans "Cancel" %}</button>
@@ -302,7 +401,7 @@
        class="fixed inset-0 z-50 flex items-center justify-center p-4"
        style="display:none;">
     <div class="absolute inset-0 bg-slate-900/55 backdrop-blur-sm" @click="inspectOpen=false"></div>
-    <div class="relative w-full max-w-lg rounded-2xl border shadow-2xl p-6 max-h-[90vh] overflow-y-auto"
+    <div class="relative w-full max-w-xl rounded-2xl border shadow-2xl p-6 max-h-[90vh] overflow-y-auto"
          style="border-color: var(--border); background: var(--surface-2);" @click.stop>
       <div class="flex items-start justify-between gap-3 mb-4">
         <div>
@@ -315,18 +414,21 @@
       </div>
 
       <div x-show="active.can_edit" class="space-y-3" style="display:none;">
-        <form method="post" :action="updateUrl(active.id)" enctype="multipart/form-data" @submit.prevent="submitUpdate($event)">
+        <form id="inspect-edit-form" class="mtms-modal-stack" method="post" :action="updateUrl(active.id)" enctype="multipart/form-data" @submit.prevent="submitUpdate($event)">
           {% csrf_token %}
-          <div>
+          {% if board_filter_user_id %}
+          <input type="hidden" name="board_user" value="{{ board_filter_user_id }}">
+          {% endif %}
+          <div class="mtms-modal-fieldgroup">
             <label class="block text-xs font-semibold mb-1">{% trans "Title" %}</label>
             <input class="mtms-input" name="title" type="text" x-model="active.title" required>
           </div>
-          <div>
+          <div class="mtms-modal-fieldgroup">
             <label class="block text-xs font-semibold mb-1">{% trans "Description" %}</label>
             <textarea class="mtms-input" name="description" rows="4" x-model="active.description"></textarea>
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
+            <div class="mtms-modal-fieldgroup">
               <label class="block text-xs font-semibold mb-1">{% trans "Priority" %}</label>
               <select class="mtms-input" name="priority" x-model="active.priority">
                 {% for val,label in priority_choices %}
@@ -334,21 +436,21 @@
                 {% endfor %}
               </select>
             </div>
-            <div>
+            <div class="mtms-modal-fieldgroup">
               <label class="block text-xs font-semibold mb-1">{% trans "Due date" %}</label>
               <input class="mtms-input" type="date" name="due_date" x-model="active.due_date">
             </div>
           </div>
-          <div>
+          <div class="mtms-modal-fieldgroup">
             <label class="block text-xs font-semibold mb-1">{% trans "Assigned employee" %}</label>
             <select class="mtms-input" name="assigned_to" x-model="active.assigned_to">
               <option value="">— {% trans "Unassigned" %} —</option>
               {% for u in assignees %}
-                <option value="{{ u.id }}">{{ u.full_name }} ({{ u.email }})</option>
+                <option value="{{ u.id }}">{{ u.full_name }}</option>
               {% endfor %}
             </select>
           </div>
-          <div>
+          <div class="mtms-modal-fieldgroup">
             <label class="block text-xs font-semibold mb-1">{% trans "Column" %}</label>
             <select class="mtms-input" name="column" x-model="active.column">
               {% for c in columns %}
@@ -356,9 +458,15 @@
               {% endfor %}
             </select>
           </div>
-          <div>
+          <div class="mtms-modal-fieldgroup">
             <label class="block text-xs font-semibold mb-1">{% trans "Attachments" %}</label>
-            <input class="mtms-input-file" type="file" name="attachments" multiple>
+            <div class="mtms-file-drop mt-2">
+              <label class="mtms-file-drop-label">
+                <span>{% trans "Drop files or browse" %}</span>
+                <span class="mtms-file-drop-hint">{% trans "Add more images or video." %}</span>
+              </label>
+              <input type="file" name="attachments" multiple accept="image/*,video/*">
+            </div>
           </div>
           <div class="flex justify-end gap-2 pt-2">
             <button type="button" class="mtms-input px-4 py-2 text-sm font-semibold" @click="inspectOpen=false">{% trans "Close" %}</button>
@@ -667,24 +775,8 @@
           });
         });
       },
-      initCreateSubmit() {
-        const form = document.getElementById('create-task-form');
-        if (!form) return;
-        form.addEventListener('submit', async function (e) {
-          e.preventDefault();
-          const fd = new FormData(form);
-          const res = await fetch(form.action, {
-            method: 'POST',
-            headers: {'X-CSRFToken': mtmsGetCookie('csrftoken')},
-            body: fd,
-            credentials: 'same-origin'
-          });
-          if (res.ok || res.redirected) window.location.reload();
-        });
-      },
       init() {
         this.initSortable();
-        this.initCreateSubmit();
       }
     };
   }

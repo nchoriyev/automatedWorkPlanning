@@ -1,0 +1,37 @@
+{% load i18n attachment_tags %}
+<article class="mtms-att-card rounded-xl border overflow-hidden"
+         style="border-color: var(--border); background: color-mix(in srgb, var(--surface-2) 92%, transparent);">
+  {% if attachment.file|mtms_is_image %}
+    <div class="mtms-att-thumb flex items-center justify-center"
+         style="background: color-mix(in srgb, var(--surface) 82%, var(--text));">
+      <a href="{{ attachment.file.url }}" target="_blank" rel="noopener" class="block w-full">
+        <img src="{{ attachment.file.url }}" alt="" loading="lazy" decoding="async"
+             class="w-full max-h-[min(22rem,55vh)] object-contain mx-auto">
+      </a>
+    </div>
+  {% elif attachment.file|mtms_is_video %}
+    <div class="mtms-att-thumb flex items-center justify-center bg-black">
+      <video controls playsinline preload="metadata" class="w-full max-h-[min(24rem,60vh)]"
+             src="{{ attachment.file.url }}"></video>
+    </div>
+  {% endif %}
+  <div class="flex flex-wrap items-center gap-x-2 gap-y-1 px-3 py-2.5 border-t"
+       style="border-color: var(--border);">
+    {% if attachment.file|mtms_is_image or attachment.file|mtms_is_video %}
+      <a href="{{ attachment.file.url }}" class="text-xs font-semibold brand-text hover:underline truncate min-w-0 flex-1"
+         target="_blank" rel="noopener">{{ attachment.file.name }}</a>
+    {% else %}
+      <a href="{{ attachment.file.url }}" class="font-semibold brand-text hover:underline text-sm shrink min-w-0 break-all flex-1"
+         target="_blank" rel="noopener">{{ attachment.file.name }}</a>
+    {% endif %}
+    <span class="text-xs whitespace-nowrap shrink-0" style="color: var(--muted);">{{ attachment.uploaded_at|date:"SHORT_DATETIME_FORMAT" }}</span>
+    {% if show_remove %}
+      <form method="post" action="{% url 'tasks:task_attachment_delete' task_pk=task.pk pk=attachment.pk %}" class="inline shrink-0 ml-auto">
+        {% csrf_token %}
+        <button type="submit" class="text-xs font-bold text-red-600 hover:underline px-2 py-1 rounded-lg border border-red-200 dark:border-red-900/40">
+          {% trans "Remove" %}
+        </button>
+      </form>
+    {% endif %}
+  </div>
+</article>

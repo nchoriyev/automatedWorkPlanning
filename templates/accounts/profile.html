@@ -15,13 +15,10 @@
     </div>
     <div class="flex-1 space-y-2">
       <h1 class="text-2xl font-bold">{{ user.full_name }}</h1>
-      <p class="text-sm" style="color: var(--muted);">{{ user.email }}</p>
-      {% if user.role %}
-        <p class="text-sm"><span class="font-semibold">{% trans "Position" %}:</span> {{ user.role }}</p>
+      {% if user.phone %}
+        <p class="text-sm" style="color: var(--muted);">{{ user.phone }}</p>
       {% endif %}
-      {% if user.department %}
-        <p class="text-sm"><span class="font-semibold">{% trans "Department" %}:</span> {{ user.department }}</p>
-      {% endif %}
+      <p class="text-sm"><span class="font-semibold">{% trans "Position" %}:</span> {{ user.get_role_display }}</p>
       {% if user.is_staff %}
         <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold border"
               style="border-color: var(--border); color: var(--muted);">{% trans "Staff" %}</span>
